@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>INKINGI — Deployment Check</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#F4F5FA;color:#101A33;margin:0;padding:24px;line-height:1.55}
+  .wrap{max-width:860px;margin:0 auto}
+  h1{color:#0C1530;font-size:22px}
+  .ok{color:#0B7A3D;font-weight:700}.bad{color:#B3261E;font-weight:700}
+  .row{background:#fff;border:1px solid rgba(12,21,48,.12);border-radius:12px;padding:14px 18px;margin:10px 0;font-size:14.5px}
+  code{background:#E9EDF9;padding:1px 6px;border-radius:5px;font-size:12.5px;word-break:break-all}
+  .fix{background:#FCF1DA;border:1px solid #F2B441;border-radius:12px;padding:16px;font-size:14px;margin-top:14px}
+  a{color:#213A8F}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>INKINGI ASSISTANT — deployment self-test</h1>
+  <p>The whole site is ~13 files. This page verifies every one of them, including the two
+     screenshot bundles (<code>images-corehr.zip</code>: 117 pages, <code>images-pip.zip</code>: 73 pages).</p>
+  <div id="out"></div>
+  <div class="fix" id="fixBox" style="display:none">
+    <b>How to fix</b><br>
+    • Upload <u>every file</u> from the package into the <u>same folder</u> as <code>index.html</code>
+      (GitHub web upload handles ~13 files in one commit without issues).<br>
+    • Filenames are case-sensitive on GitHub Pages — keep them exactly as shipped.<br>
+    • If you are viewing this locally via <code>file://</code>, zip checks are blocked by the browser —
+      run <code>python -m http.server 8080</code> in the folder and open <code>http://localhost:8080/check.html</code>.
+  </div>
+</div>
+<script src="jszip.min.js"></script>
+<script>
+const out = document.getElementById("out");
+let anyBad = false;
+function row(ok, html){
+  if (!ok) anyBad = true;
+  out.insertAdjacentHTML("beforeend",
+    '<div class="row"><span class="' + (ok ? "ok" : "bad") + '">' + (ok ? "✅" : "❌") + "</span> " + html + "</div>");
+  document.getElementById("fixBox").style.display = anyBad ? "block" : "none";
+}
+async function checkFile(path){
+  try { const r = await fetch(path, {cache: "no-store"}); row(r.ok, "<code>" + path + "</code>" + (r.ok ? "" : " — HTTP " + r.status)); return r.ok; }
+  catch(e){ row(false, "<code>" + path + "</code> — unreachable (" + e.message + ")"); return false; }
+}
+async function checkZip(path, prefix, count){
+  try {
+    const r = await fetch(path, {cache: "no-store"});
+    if (!r.ok){ row(false, "<code>" + path + "</code> — HTTP " + r.status); return; }
+    const buf = await r.arrayBuffer();
+    const z = await JSZip.loadAsync(buf);
+    const missing = [];
+    for (let i = 1; i <= count; i++){
+      const f = prefix + "-" + String(i).padStart(3, "0") + ".jpg";
+      if (!z.file(f)) missing.push(f);
+    }
+    row(missing.length === 0,
+      "<code>" + path + "</code> — " + (count - missing.length) + "/" + count + " screenshots"
+      + (missing.length ? " · missing: <code>" + missing.slice(0,5).join(", ") + (missing.length > 5 ? "…" : "") + "</code>" : "")
+      + " · " + (buf.byteLength / 1048576).toFixed(1) + " MB");
+  } catch(e){ row(false, "<code>" + path + "</code> — " + e.message); }
+}
+(async () => {
+  if (location.protocol === "file:"){
+    row(false, "You are on <code>file://</code> — the browser blocks zip loading here. Use a local server or the live GitHub Pages URL.");
+    return;
+  }
+  for (const f of ["index.html","app.js","kb.js","styles.css","jszip.min.js","rssb-logo.png","favicon.png"]) await checkFile(f);
+  await checkZip("images-corehr.zip", "corehr", 117);
+  await checkZip("images-pip.zip", "pip", 73);
+  if (!anyBad) row(true, "<b>All checks passed.</b> <a href='index.html'>Open INKINGI ASSISTANT →</a>");
+})();
+</script>
+</body>
+</html>

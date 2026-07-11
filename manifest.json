@@ -1,0 +1,30 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "REPLACE-WITH-A-NEW-GUID",
+  "developer": {
+    "name": "RSSB",
+    "websiteUrl": "https://YOUR-GITHUB-PAGES-URL",
+    "privacyUrl": "https://YOUR-GITHUB-PAGES-URL",
+    "termsOfUseUrl": "https://YOUR-GITHUB-PAGES-URL"
+  },
+  "name": { "short": "INKINGI ASSISTANT", "full": "INKINGI ASSISTANT — RSSB Oracle HCM Guide" },
+  "description": {
+    "short": "Your Oracle HCM Guide & Knowledge Companion",
+    "full": "Step-by-step Oracle HCM procedures for RSSB employees and managers, in English and Kinyarwanda, with official manual screenshots."
+  },
+  "icons": { "color": "color.png", "outline": "outline.png" },
+  "accentColor": "#213A8F",
+  "staticTabs": [
+    {
+      "entityId": "inkingi-home",
+      "name": "INKINGI",
+      "contentUrl": "https://YOUR-GITHUB-PAGES-URL/index.html",
+      "websiteUrl": "https://YOUR-GITHUB-PAGES-URL",
+      "scopes": ["personal"]
+    }
+  ],
+  "permissions": ["identity"],
+  "validDomains": ["YOURUSERNAME.github.io"]
+}
