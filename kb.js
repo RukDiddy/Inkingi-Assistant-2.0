@@ -452,7 +452,7 @@ const KB = [
 
 /* ============================ PIP / TALENT ============================ */
 {
-  id: "assign-goals", roles: ["manager"], cat: "pip", icon: "🎯",
+  id: "assign-goals", sub: "pipx", roles: ["manager"], cat: "pip", icon: "🎯",
   title: { en: "Assign PIP Goals to Direct Reports (Manager)", rw: "Guha intego za PIP abakozi (Umuyobozi)" },
   purpose: {
     en: "As a line manager, create and assign Performance Improvement Plan goals to a direct report for the PIP review period.",
@@ -482,7 +482,7 @@ const KB = [
   related: ["self-evaluation","manager-evaluation"]
 },
 {
-  id: "self-evaluation", roles: ["employee"], cat: "pip", icon: "📝",
+  id: "self-evaluation", sub: "perf", roles: ["employee"], cat: "pip", icon: "📝",
   title: { en: "PIP Self-Evaluation (Employee)", rw: "Kwisuzuma kwa PIP (Umukozi)" },
   purpose: {
     en: "Complete your PIP self-evaluation: rate your core competencies, PIP goals, and development goals, then submit to your manager.",
@@ -515,7 +515,7 @@ const KB = [
   related: ["manager-evaluation","assign-goals","final-feedback"]
 },
 {
-  id: "manager-evaluation", roles: ["manager"], cat: "pip", icon: "🧑‍💼",
+  id: "manager-evaluation", sub: "perf", roles: ["manager"], cat: "pip", icon: "🧑‍💼",
   title: { en: "PIP Manager Evaluation", rw: "Isuzuma ry'umuyobozi (PIP)" },
   purpose: {
     en: "As a line manager, evaluate your direct report's competencies, PIP goals and development goals, answer the PIP questionnaire, and submit the evaluation.",
@@ -546,7 +546,7 @@ const KB = [
   related: ["pip-approval","self-evaluation","review-meeting"]
 },
 {
-  id: "pip-approval", roles: ["senior"], cat: "pip", icon: "✔️",
+  id: "pip-approval", sub: "perf", roles: ["senior"], cat: "pip", icon: "✔️",
   title: { en: "PIP Performance Document Approval", rw: "Kwemeza inyandiko y'isuzuma (PIP)" },
   purpose: {
     en: "The line manager's line manager (second-level manager) reviews and approves the completed PIP evaluation.",
@@ -572,7 +572,7 @@ const KB = [
   related: ["manager-evaluation","review-meeting"]
 },
 {
-  id: "review-meeting", roles: ["employee", "manager"], cat: "pip", icon: "🗓️",
+  id: "review-meeting", sub: "review", roles: ["employee", "manager"], cat: "pip", icon: "🗓️",
   title: { en: "PIP Review Meeting (Schedule & Confirm)", rw: "Inama y'isuzuma (gutegura & kwemeza)" },
   purpose: {
     en: "After approval, the manager schedules the review meeting and marks it held; the employee then confirms the meeting took place.",
@@ -599,7 +599,7 @@ const KB = [
   related: ["share-document","pip-approval"]
 },
 {
-  id: "share-document", roles: ["employee", "manager"], cat: "pip", icon: "📨",
+  id: "share-document", sub: "pipx", roles: ["employee", "manager"], cat: "pip", icon: "📨",
   title: { en: "Share Performance Document & Acknowledge", rw: "Gusangiza inyandiko y'isuzuma no kuyemeza" },
   purpose: {
     en: "The manager shares the completed PIP document with the employee, and the employee acknowledges it.",
@@ -626,7 +626,7 @@ const KB = [
   related: ["review-meeting","final-feedback"]
 },
 {
-  id: "final-feedback", roles: ["employee", "manager"], cat: "pip", icon: "💬",
+  id: "final-feedback", sub: "review", roles: ["employee", "manager"], cat: "pip", icon: "💬",
   title: { en: "Final Feedback (Employee & Manager)", rw: "Ibitekerezo bya nyuma" },
   purpose: {
     en: "Both the employee and then the manager provide final feedback comments to close the PIP evaluation cycle.",
@@ -681,7 +681,13 @@ const ROLES = {
 
 const CATS = {
   corehr: { en: "Core HR", rw: "Core HR", icon: "👥" },
-  pip:    { en: "Talent Management (PIP)", rw: "Imicungire y'impano (PIP)", icon: "🎯" }
+  pip:    { en: "Talent Management", rw: "Imicungire y'impano", icon: "🎯" }
+};
+
+const SUBTABS = {
+  perf:   { en: "Performance Evaluation", rw: "Isuzuma ry'imikorere", icon: "📊" },
+  review: { en: "Employee Review",        rw: "Isubiramo ry'umukozi",  icon: "🗓️" },
+  pipx:   { en: "PIP",                    rw: "PIP",                   icon: "🎯" }
 };
 
 const MANUALS = {

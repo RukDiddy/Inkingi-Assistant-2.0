@@ -4,16 +4,21 @@
 let LANG = localStorage.getItem("inkingi_lang") || "en";
 const T = {
   en: {
-    tag: "Your Oracle HCM Guide & Knowledge Companion",
-    heroTitle: 'Learn Oracle HCM, <span>step by step</span>.',
+    tag: "Your Inkingi System Guide & Knowledge Companion",
+    heroTitle: 'Learn the Inkingi System, <span>step by step</span>.',
     heroSub: "Search any HR procedure — bank details, resignation, PIP evaluation — and get the exact navigation path, steps, and manual screenshots. No need to call HR for routine questions.",
     searchPh: "Search a procedure… e.g. \"update bank details\" / \"nsezera\"",
-    ask: "Ask Assistant", home: "Home", corehr: "Core HR", pip: "Talent Management (PIP)",
+    ask: "Ask Assistant", home: "Home", corehr: "Core HR", pip: "Talent Management",
     faq: "Kinyarwanda FAQ", manuals: "Browse Manuals", contact: "Contact HR",
     rules: "Internal Rules", rulesH: "Internal Rules Governing RSSB Employees",
     rulesIntro: "Plain-language summaries of the official Internal Rules adopted by the RSSB Board of Directors (effective 31 May 2024). Each section references the exact articles. The signed official document always prevails.",
     rulesNote: "Salary scales, allowance amounts and mission fee tables are in the official appendices and are not published on this portal — contact HR Operations for figures.",
     rulesAsk: "You can also ask the chatbot, e.g. \"How many days of annual leave?\" or \"What is the retirement age?\"",
+    signinH: "Staff Sign-In", signinSub: "This portal is reserved for RSSB employees.",
+    signinMail: "RSSB email", signinCode: "Access code", signinBtn: "Sign in",
+    signinHint: "The access code is shared internally by HR Operations. If you don't have it, contact",
+    errMail: "Please use your @rssb.rw email address.", errCode: "Incorrect access code.",
+    signout: "Sign out",
     browse: "Browse by topic", navLbl: "Navigation path in Oracle HCM",
     stepsH: "Step-by-step", shotsH: "Manual screenshots", relH: "Related topics",
     pagesLbl: "pages", openFull: "Open full size", prev: "Previous", next: "Next", close: "Close",
@@ -29,16 +34,21 @@ const T = {
     manualH: "Browse the full manuals page by page", roleE: "Employee", roleM: "Manager", allTopics: "All topics"
   },
   rw: {
-    tag: "Umufasha wawe muri Oracle HCM",
-    heroTitle: 'Iga Oracle HCM, <span>intambwe ku yindi</span>.',
+    tag: "Umufasha wawe muri Sisitemu ya Inkingi",
+    heroTitle: 'Iga Sisitemu ya Inkingi, <span>intambwe ku yindi</span>.',
     heroSub: "Shakisha uburyo ubwo ari bwo bwose bwa HR — konti ya banki, gusezera, isuzuma rya PIP — ubone inzira nyayo muri sisitemu, intambwe zose, n'amafoto yo mu gitabo. Ntukeneye guhamagara HR ku bibazo bisanzwe.",
     searchPh: "Shakisha… urugero: \"kuvugurura konti ya banki\"",
-    ask: "Baza Umufasha", home: "Ahabanza", corehr: "Core HR", pip: "Imicungire y'impano (PIP)",
+    ask: "Baza Umufasha", home: "Ahabanza", corehr: "Core HR", pip: "Imicungire y'impano",
     faq: "Ibibazo bikunze kubazwa", manuals: "Reba ibitabo", contact: "Vugana na HR",
     rules: "Amabwiriza y'imbere", rulesH: "Amabwiriza agenga abakozi ba RSSB",
     rulesIntro: "Incamake mu mvugo yoroshye y'Amabwiriza yemejwe n'Inama y'Ubuyobozi ya RSSB (yatangiye 31 Gicurasi 2024). Buri gice cyerekana ingingo bireba. Inyandiko yemewe yasinywe ni yo ifite agaciro.",
     rulesNote: "Imbonerahamwe z'imishahara n'amafaranga y'ubutumwa ziri mu mugereka wemewe kandi ntizitangazwa kuri uru rubuga — baza HR Operations.",
     rulesAsk: "Ushobora no kubaza umufasha, urugero: \"Ikiruhuko cy'umwaka ni iminsi ingahe?\"",
+    signinH: "Kwinjira kw'abakozi", signinSub: "Uru rubuga rugenewe abakozi ba RSSB gusa.",
+    signinMail: "Imeyili ya RSSB", signinCode: "Umubare w'ibanga", signinBtn: "Injira",
+    signinHint: "Umubare w'ibanga utangwa na HR Operations. Niba utawufite, vugana na",
+    errMail: "Koresha imeyili yawe ya @rssb.rw.", errCode: "Umubare w'ibanga si wo.",
+    signout: "Sohoka",
     browse: "Hitamo ingingo", navLbl: "Inzira muri Oracle HCM",
     stepsH: "Intambwe ku yindi", shotsH: "Amafoto yo mu gitabo", relH: "Ingingo zifitanye isano",
     pagesLbl: "impapuro", openFull: "Fungura ifoto nini", prev: "Isubira", next: "Ikurikira", close: "Funga",
@@ -213,6 +223,7 @@ function renderChrome(active){
       <div><div class="t1">INKINGI ASSISTANT</div><div class="t2">${t("tag")}</div></div>
     </div>
     <div class="spacer"></div>
+    <button class="tbtn" id="outBtn" title="${t("signout")}">⎋</button>
     <button class="tbtn" id="darkBtn">◐</button>
     <button class="tbtn lang" id="langBtn">${LANG === "en" ? "RW" : "EN"}</button>
   </div>
@@ -231,6 +242,7 @@ function renderChrome(active){
     </nav>
     <main id="main"></main>
   </div>`;
+  $("#outBtn").onclick = signOut;
   $("#darkBtn").onclick = () => {
     document.body.classList.toggle("dark");
     localStorage.setItem("inkingi_dark", document.body.classList.contains("dark") ? "1" : "0");
@@ -261,7 +273,7 @@ function renderHome(){
   <div class="hero">
     <div class="hero-pattern" aria-hidden="true">${imigongoSVG()}</div>
     <div class="hero-inner">
-      <div class="eyebrow">RSSB · Oracle HCM</div>
+      <div class="eyebrow">RSSB · Inkingi System</div>
       <h1>${T[LANG].heroTitle}</h1>
       <p>${t("heroSub")}</p>
       <div class="searchwrap">
@@ -327,7 +339,15 @@ function renderCategory(cat){
   <h1 class="section-h" style="margin-top:6px">${CATS[cat].icon} ${t(cat)}</h1>
   ${rolePillsHTML()}
   ${(() => { const items = KB.filter(a => a.cat === cat && roleMatch(a));
-    return items.length ? `<div class="grid">${items.map(cardHTML).join("")}</div>` : emptyNote(); })()}
+    if (!items.length) return emptyNote();
+    if (cat === "pip" && typeof SUBTABS !== "undefined"){
+      return Object.keys(SUBTABS).map(sk => {
+        const g = items.filter(a => a.sub === sk);
+        return g.length ? `<h2 class="subtab-h">${SUBTABS[sk].icon} ${SUBTABS[sk][LANG]}</h2>
+        <div class="grid">${g.map(cardHTML).join("")}</div>` : "";
+      }).join("");
+    }
+    return `<div class="grid">${items.map(cardHTML).join("")}</div>`; })()}
   ${footerHTML()}`;
 }
 
@@ -630,8 +650,73 @@ function showBanner(failed, isFileMode = false){
   document.body.prepend(b);
 }
 
+/* ---------------- staff sign-in gate ----------------
+   Deterrent-level access control for a static site. The access code is checked
+   as a SHA-256 hash; the session lasts 30 days in this browser.
+   DEFAULT CODE: INKINGI@2026  — CHANGE IT before going live:
+   1. Open your browser console (F12) on any https page and run:
+      crypto.subtle.digest("SHA-256", new TextEncoder().encode("YourNewCode"))
+        .then(b=>console.log(Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,"0")).join("")))
+   2. Replace AUTH_HASH below with the printed value and re-upload app.js.
+   NOTE: this is not real security — content is still in the public repo.     */
+const AUTH_HASH = "c9ccebe64f5a03f168bcf85c53c78bca08d2c723042040af41eeba6b1e3395d3";
+const AUTH_DAYS = 30;
+
+function authOK(){
+  try {
+    const a = JSON.parse(localStorage.getItem("inkingi_auth") || "null");
+    return a && a.h === AUTH_HASH && (Date.now() - a.t) < AUTH_DAYS * 864e5;
+  } catch(e){ return false; }
+}
+async function sha256(s){
+  if (!(window.crypto && crypto.subtle)) return null;  // file:// fallback
+  const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2,"0")).join("");
+}
+function renderLogin(){
+  document.title = "INKINGI ASSISTANT — RSSB";
+  $("#app").innerHTML = `
+  <div class="login-wrap">
+    <div class="login-pattern" aria-hidden="true">${imigongoSVG()}</div>
+    <form class="login-card" id="loginForm" autocomplete="on">
+      <img src="rssb-logo.png" alt="RSSB" class="login-logo">
+      <div class="login-brand">INKINGI ASSISTANT</div>
+      <h1>${t("signinH")}</h1>
+      <p class="login-sub">${t("signinSub")}</p>
+      <label>${t("signinMail")}
+        <input type="email" id="authMail" placeholder="name@rssb.rw" autocomplete="email" required>
+      </label>
+      <label>${t("signinCode")}
+        <input type="password" id="authCode" placeholder="••••••••" autocomplete="current-password" required>
+      </label>
+      <div class="login-err" id="authErr"></div>
+      <button type="submit" class="login-btn">${t("signinBtn")} →</button>
+      <p class="login-hint">${t("signinHint")} ${mailLinks()}</p>
+    </form>
+  </div>`;
+  $("#loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const mail = $("#authMail").value.trim().toLowerCase();
+    const code = $("#authCode").value;
+    const err = $("#authErr");
+    if (!/^[a-z0-9._%+-]+@rssb\.rw$/.test(mail)){ err.textContent = t("errMail"); return; }
+    const h = await sha256(code);
+    if (h === null){ err.textContent = "Secure sign-in needs https or localhost — open the live site."; return; }
+    if (h !== AUTH_HASH){ err.textContent = t("errCode"); $("#authCode").value = ""; return; }
+    localStorage.setItem("inkingi_auth", JSON.stringify({h, m: mail, t: Date.now()}));
+    route();
+  });
+  $("#authMail").focus();
+}
+function signOut(){
+  localStorage.removeItem("inkingi_auth");
+  chatLog = [];
+  route();
+}
+
 /* ---------------- router ---------------- */
 function route(){
+  if (!authOK()) return renderLogin();
   const h = location.hash || "#/";
   closeLightbox();
   if (h === "#/" || h === "") return renderHome();

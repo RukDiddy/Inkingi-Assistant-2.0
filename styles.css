@@ -322,3 +322,26 @@ body.dark .rule-tt small{color:var(--gold)}
 body.dark .maillink{color:#9DB2F5}
 .mailrow{margin-top:14px;display:flex;flex-wrap:wrap;gap:12px;font-size:14.5px}
 footer .maillink{font-size:12.5px}
+
+/* ---------------- staff sign-in (V8) ---------------- */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:linear-gradient(150deg,var(--navy) 0%,var(--navy-2) 55%,var(--blue-deep) 100%);position:relative;overflow:hidden}
+.login-pattern{position:absolute;inset:0;opacity:.1;pointer-events:none}
+.login-pattern svg{width:100%;height:100%}
+.login-card{position:relative;z-index:2;width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:36px 32px;box-shadow:0 30px 80px -20px rgba(5,10,35,.6);text-align:center}
+.login-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;border-radius:20px 20px 0 0;background:linear-gradient(90deg,var(--navy),var(--gold),var(--navy))}
+.login-logo{width:64px;height:64px;object-fit:contain;margin-bottom:8px}
+.login-brand{font-family:var(--font-mono);font-size:11px;letter-spacing:.22em;color:var(--gold-deep);text-transform:uppercase;margin-bottom:14px}
+.login-card h1{font-family:var(--font-display);font-weight:800;font-size:24px;color:var(--ink);letter-spacing:-.01em}
+.login-sub{font-size:13.5px;color:var(--muted);margin:6px 0 22px}
+.login-card label{display:block;text-align:left;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.login-card input{display:block;width:100%;margin-top:6px;padding:12px 14px;font-size:15px;border:1.5px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink);transition:.18s}
+.login-card input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(242,180,65,.2)}
+.login-err{min-height:18px;font-size:13px;color:#C0392B;font-weight:600;margin-bottom:8px}
+body.dark .login-err{color:#F1948A}
+.login-btn{width:100%;padding:13px;border-radius:11px;border:none;background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--navy);font-family:var(--font-display);font-weight:800;font-size:15px;letter-spacing:.02em;cursor:pointer;transition:.2s;box-shadow:var(--shadow-gold)}
+.login-btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.login-hint{margin-top:18px;font-size:12.5px;color:var(--muted);line-height:1.7}
+
+/* talent management sub-sections (V8) */
+.subtab-h{font-family:var(--font-display);font-weight:800;font-size:17px;color:var(--ink);margin:26px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line);position:relative}
+.subtab-h::after{content:"";position:absolute;left:0;bottom:-2px;width:56px;height:2px;background:var(--gold)}
