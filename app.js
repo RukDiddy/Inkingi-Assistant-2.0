@@ -10,6 +10,10 @@ const T = {
     searchPh: "Search a procedure… e.g. \"update bank details\" / \"nsezera\"",
     ask: "Ask Assistant", home: "Home", corehr: "Core HR", pip: "Talent Management (PIP)",
     faq: "Kinyarwanda FAQ", manuals: "Browse Manuals", contact: "Contact HR",
+    rules: "Internal Rules", rulesH: "Internal Rules Governing RSSB Employees",
+    rulesIntro: "Plain-language summaries of the official Internal Rules adopted by the RSSB Board of Directors (effective 31 May 2024). Each section references the exact articles. The signed official document always prevails.",
+    rulesNote: "Salary scales, allowance amounts and mission fee tables are in the official appendices and are not published on this portal — contact HR Operations for figures.",
+    rulesAsk: "You can also ask the chatbot, e.g. \"How many days of annual leave?\" or \"What is the retirement age?\"",
     browse: "Browse by topic", navLbl: "Navigation path in Oracle HCM",
     stepsH: "Step-by-step", shotsH: "Manual screenshots", relH: "Related topics",
     pagesLbl: "pages", openFull: "Open full size", prev: "Previous", next: "Next", close: "Close",
@@ -31,6 +35,10 @@ const T = {
     searchPh: "Shakisha… urugero: \"kuvugurura konti ya banki\"",
     ask: "Baza Umufasha", home: "Ahabanza", corehr: "Core HR", pip: "Imicungire y'impano (PIP)",
     faq: "Ibibazo bikunze kubazwa", manuals: "Reba ibitabo", contact: "Vugana na HR",
+    rules: "Amabwiriza y'imbere", rulesH: "Amabwiriza agenga abakozi ba RSSB",
+    rulesIntro: "Incamake mu mvugo yoroshye y'Amabwiriza yemejwe n'Inama y'Ubuyobozi ya RSSB (yatangiye 31 Gicurasi 2024). Buri gice cyerekana ingingo bireba. Inyandiko yemewe yasinywe ni yo ifite agaciro.",
+    rulesNote: "Imbonerahamwe z'imishahara n'amafaranga y'ubutumwa ziri mu mugereka wemewe kandi ntizitangazwa kuri uru rubuga — baza HR Operations.",
+    rulesAsk: "Ushobora no kubaza umufasha, urugero: \"Ikiruhuko cy'umwaka ni iminsi ingahe?\"",
     browse: "Hitamo ingingo", navLbl: "Inzira muri Oracle HCM",
     stepsH: "Intambwe ku yindi", shotsH: "Amafoto yo mu gitabo", relH: "Ingingo zifitanye isano",
     pagesLbl: "impapuro", openFull: "Fungura ifoto nini", prev: "Isubira", next: "Ikurikira", close: "Funga",
@@ -194,8 +202,8 @@ function navTrailHTML(nav){
 function renderChrome(active){
   document.title = "INKINGI ASSISTANT — RSSB";
   const links = [
-    ["#/", "home"], ["#/ask", "ask"], ["#/cat/corehr", "corehr"], ["#/cat/pip", "pip"],
-    ["#/faq", "faq"], ["#/manuals", "manuals"], ["#/contact", "contact"]
+    ["#/rules", "rules"], ["#/", "home"], ["#/ask", "ask"], ["#/cat/corehr", "corehr"],
+    ["#/cat/pip", "pip"], ["#/faq", "faq"], ["#/manuals", "manuals"], ["#/contact", "contact"]
   ];
   $("#app").innerHTML = `
   <div class="topbar">
@@ -235,16 +243,20 @@ function renderChrome(active){
   $("#menuBtn").onclick = () => $("#sidebar").classList.toggle("open");
 }
 function sideIcon(k){
-  return {home:"🏠",ask:"💬",corehr:"👥",pip:"🎯",faq:"❓",manuals:"📚",contact:"📞"}[k] || "";
+  return {home:"🏠",ask:"💬",corehr:"👥",pip:"🎯",rules:"📜",faq:"❓",manuals:"📚",contact:"📞"}[k] || "";
+}
+const HR_MAILS = [["rssbhr@rssb.rw","rssbhr@rssb.rw"],["hroperations@rssb.rw","hroperations@rssb.rw"]];
+function mailLinks(){
+  return HR_MAILS.map(([m,l]) => `<a class="maillink" href="mailto:${m}">✉️ ${l}</a>`).join(" ");
 }
 function footerHTML(){
-  return `<footer>${t("footer")}<br><b>${t("contactH")}</b> ${t("contactOrg")}</footer>`;
+  return `<footer>${t("footer")}<br><b>${t("contactH")}</b> ${t("contactOrg")} · ${mailLinks()}</footer>`;
 }
 
 /* ---------------- pages ---------------- */
 function renderHome(){
   renderChrome("home");
-  const quick = ["bank-details","resignation","self-evaluation","transfers","exit-journey"];
+  const quick = ["assign-goals","personal-details","contact-info","family-contacts","document-records","transfers"];
   $("#main").innerHTML = `
   <div class="hero">
     <div class="hero-pattern" aria-hidden="true">${imigongoSVG()}</div>
@@ -393,6 +405,10 @@ function closeLightbox(){
 }
 
 /* ---------------- chatbot ---------------- */
+/* Optional AI backend. Leave "" for keyword matcher only.
+   To enable: deploy cloudflare-worker.js (instructions inside that file),
+   then paste your Worker URL here and re-upload app.js. */
+const AI_ENDPOINT = "";
 let chatLog = [];
 function renderAsk(){
   renderChrome("ask");
@@ -421,15 +437,45 @@ function paintChat(){
   w.scrollTop = w.scrollHeight;
 }
 function quickAsk(q){ $("#chatInp").value = q; sendChat(); }
-function sendChat(){
+async function sendChat(){
   const inp = $("#chatInp");
   const q = inp.value.trim();
   if (!q) return;
   inp.value = "";
   chatLog.push({who:"user", html: esc(q)});
+  if (AI_ENDPOINT){
+    chatLog.push({who:"bot", html: "<i>…</i>"}); paintChat();
+    try {
+      const r = await fetch(AI_ENDPOINT, {method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({question: q, lang: LANG})});
+      const d = await r.json();
+      if (d.answer){ chatLog[chatLog.length-1] = {who:"bot", html: esc(d.answer).replace(/\n/g,"<br>")}; paintChat(); return; }
+    } catch(e){ /* fall through to keyword matcher */ }
+    chatLog.pop(); // remove the "…" placeholder, use local matcher instead
+  }
   const res = searchKB(q, 4);
+  const rres = (typeof searchRules === "function") ? searchRules(q, 1) : [];
+  const bestKB = res.length ? res[0].s : 0;
+  if (rres.length && rres[0].s > bestKB){
+    const r = rres[0].r;
+    chatLog.push({who:"bot", html:
+      `<b>${r.icon} ${esc(r.title[LANG])}</b> <span class="rule-ref">${esc(r.arts)}</span><br>${esc(r.summary[LANG])}` +
+      `<ul class="rule-pts">${r.points[LANG].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` +
+      `<button class="open-art" onclick="location.hash='#/rules'">📜 ${t("rules")}</button>`});
+    paintChat();
+    return;
+  }
   if (!res.length){
-    chatLog.push({who:"bot", html: `${esc(t("noMatch"))}<br><br>📞 <b>${t("contactOrg")}</b>`});
+    if (rres.length){
+      const r = rres[0].r;
+      chatLog.push({who:"bot", html:
+        `<b>${r.icon} ${esc(r.title[LANG])}</b> <span class="rule-ref">${esc(r.arts)}</span><br>${esc(r.summary[LANG])}` +
+        `<ul class="rule-pts">${r.points[LANG].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` +
+        `<button class="open-art" onclick="location.hash='#/rules'">📜 ${t("rules")}</button>`});
+      paintChat();
+      return;
+    }
+    chatLog.push({who:"bot", html: `${esc(t("noMatch"))}<br><br>📞 <b>${t("contactOrg")}</b> · ${mailLinks()}`});
   } else {
     const a = res[0].a;
     const alts = res.slice(1).filter(r => r.s >= res[0].s * 0.5);
@@ -513,12 +559,39 @@ function renderContact(){
   <div class="contact-card">
     <h2>📞 ${t("contactH")}</h2>
     <p>${t("contactP")} <span class="gold">${t("contactOrg")}</span>.</p>
+    <div class="mailrow">${mailLinks()}</div>
     <p style="margin-top:16px;font-size:14px">INKINGI ASSISTANT covers routine Oracle HCM procedures.
     For account issues, data corrections, policy questions, or anything not in the manuals, HR Operations is your contact point.</p>
   </div>
   <h2 class="section-h">${t("allTopics")}</h2>
   <div class="grid">${KB.map(cardHTML).join("")}</div>
   ${footerHTML()}`;
+}
+
+/* ---------------- internal rules ---------------- */
+function renderRules(){
+  renderChrome("rules");
+  $("#main").innerHTML = `
+  <div class="rules-hero">
+    <h1 class="section-h" style="margin-top:0">📜 ${t("rulesH")}</h1>
+    <p class="rules-intro">${t("rulesIntro")}</p>
+    <p class="rules-note">ℹ️ ${t("rulesNote")}</p>
+    <p class="rules-note">💬 ${t("rulesAsk")}</p>
+  </div>
+  ${RULES.map((r,i) => `
+  <div class="rule-ch" id="rch${i}">
+    <button class="rule-q" onclick="document.getElementById('rch${i}').classList.toggle('open')">
+      <span class="rule-ic">${r.icon}</span>
+      <span class="rule-tt">${esc(r.title[LANG])}<small>${esc(r.arts)}</small></span>
+      <span class="rule-arrow">▾</span>
+    </button>
+    <div class="rule-a">
+      <p class="rule-sum">${esc(r.summary[LANG])}</p>
+      <ul class="rule-pts">${r.points[LANG].map(p => `<li>${esc(p)}</li>`).join("")}</ul>
+    </div>
+  </div>`).join("")}
+  ${footerHTML()}`;
+  window.scrollTo(0,0);
 }
 
 /* ---------------- image diagnostics ---------------- */
@@ -563,6 +636,7 @@ function route(){
   closeLightbox();
   if (h === "#/" || h === "") return renderHome();
   if (h === "#/ask") return renderAsk();
+  if (h === "#/rules") return renderRules();
   if (h === "#/faq") return renderFAQ();
   if (h === "#/manuals") return renderManuals();
   if (h === "#/contact") return renderContact();
